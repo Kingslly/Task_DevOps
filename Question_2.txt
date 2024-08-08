@@ -1,0 +1,18 @@
+I modified an existing Terraform setup by adding a CloudWatch Log Group and associating it with Lambda functions, ensuring changes were non-disruptive and thoroughly tested before deployment.
+
+resource "aws_cloudwatch_log_group" "lambda_logs" {
+  name              = "/aws/lambda/${var.lambda_name}"
+  retention_in_days = 14
+}
+
+resource "aws_lambda_function" "my_lambda" {
+  function_name = var.lambda_name
+  handler       = "index.handler"
+  runtime       = "nodejs14.x"
+  role          = aws_iam_role.lambda_exec.arn
+  environment {
+    variables = {
+      LOG_GROUP_NAME = aws_cloudwatch_log_group.lambda_logs.name
+    }
+  }
+}
